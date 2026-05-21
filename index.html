@@ -586,7 +586,8 @@ function saveModal(){
   // owner: custom overrides dropdown if filled
   const customOwner=document.getElementById("m-owner-custom").value.trim();
   t.owner=customOwner||document.getElementById("m-owner").value||"";
-  saveState();render();
+  saveState();
+  render();  // Auto-render with new sort
   closeModalDirect();
 }
 
@@ -765,7 +766,8 @@ function cycleStatus(idx){
   if(t.status==="todo") t.status="prog";
   else if(t.status==="prog") t.status="done";
   else t.status="todo";
-  saveState(); render();
+  saveState();
+  render();  // Auto-render with new sort
 }
 
 // ── Drag state ──
@@ -934,6 +936,17 @@ function render(){
       if(isPastWeek(si)||diff>3||t.status==="done") return false;
     }
     return true;
+  });
+
+  // ── Sort by date (most recent first) then by urgency ──
+  filtered.sort((a, b) => {
+    // Primary sort: by start date (most recent/soon first)
+    const dateCompare = a.s - b.s;
+    if(dateCompare !== 0) return dateCompare;
+    
+    // Secondary sort: by urgency (todo > in progress > done)
+    const statusOrder = {todo: 0, prog: 1, done: 2};
+    return (statusOrder[a.status]||999) - (statusOrder[b.status]||999);
   });
 
   let lastMonth="";
