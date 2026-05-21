@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yiwen & Anthony — Wedding Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sage-dark:#2D4A3E;--sage:#4A7C59;--sage-mid:#6A9E76;--sage-light:#A8D5BA;--sage-pale:#EBF5EE;
+  --blush:#C97070;--blush-light:#F4D0D2;--gold:#C4963A;--gold-pale:#FDF6E3;
+  --ink:#1C2420;--muted:#6B7B72;--border:#E0EBE4;--bg:#F5F2EE;--white:#FFFFFF;
+  --font-display:'Playfair Display',serif;--font-body:'DM Sans',sans-serif;
+  --radius:10px;--radius-lg:16px;
+  --shadow:0 1px 3px rgba(44,74,62,0.08),0 4px 16px rgba(44,74,62,0.06);
+}
+body{font-family:var(--font-body);background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+
+/* ── Header ── */
+.header{background:var(--sage-dark);padding:1.25rem 1.75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:sticky;top:0;z-index:100}
+.header h1{font-family:var(--font-display);font-style:italic;font-size:20px;font-weight:400;color:#fff;letter-spacing:.01em}
+.header h1 span{font-style:normal;font-weight:500;color:var(--sage-light)}
+.header-sub{font-size:11px;color:var(--sage-light);margin-top:2px;font-weight:300;letter-spacing:.03em}
+.countdown{display:flex;gap:1.25rem}
+.cd-unit{text-align:center}
+.cd-num{font-size:24px;font-weight:300;color:#fff;line-height:1}
+.cd-lab{font-size:9px;color:var(--sage-light);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+/* ── Stats ── */
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:1.25rem 1.75rem;background:var(--white);border-bottom:1px solid var(--border)}
+.stat{text-align:center}
+.stat-n{font-size:28px;font-weight:300;line-height:1;margin-bottom:3px}
+.stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.progress-track{grid-column:1/-1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--sage),var(--sage-light));border-radius:2px;transition:width .5s ease}
+
+/* ── Toolbar ── */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:.85rem 1.75rem;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:72px;z-index:99}
+.search-wrap{position:relative;flex:0 0 220px}
+.search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none}
+.search-wrap input{width:100%;padding:7px 10px 7px 32px;border:1px solid var(--border);border-radius:var(--radius);background:#FAFAFA;font-family:var(--font-body);font-size:12px;color:var(--ink);outline:none;transition:border .15s}
+.search-wrap input:focus{border-color:var(--sage-mid);background:#fff}
+.pill{font-size:11px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap;font-family:var(--font-body);transition:all .15s;font-weight:400}
+.pill:hover{border-color:var(--sage);color:var(--sage-dark)}
+.pill.active{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark)}
+.pill.urgent.active{background:var(--blush);border-color:var(--blush)}
+select.cat-sel{font-size:11px;padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border);background:#fff;color:var(--ink);font-family:var(--font-body);outline:none;cursor:pointer}
+.drag-tip{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-left:auto;font-style:italic}
+
+/* ── Gantt ── */
+.gantt-outer{overflow:hidden;padding:1.25rem 1.75rem}
+.gantt-wrap{border:1px solid var(--border);border-radius:var(--radius-lg);background:#fff;overflow:hidden;box-shadow:var(--shadow)}
+.gantt-scroll{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 280px)}
+table{width:100%;border-collapse:collapse;min-width:1100px}
+
+/* Sticky head */
+thead th{background:var(--sage-dark);color:#fff;font-size:9px;font-weight:500;padding:8px 4px;text-align:center;white-space:nowrap;border-right:1px solid rgba(255,255,255,.1);position:sticky;top:0;z-index:10;letter-spacing:.04em}
+thead th.task-th{text-align:left;padding-left:16px;min-width:180px;width:180px;position:sticky;left:0;z-index:11}
+thead th.own-th{width:76px}
+thead th.cat-th{width:76px}
+thead th.st-th{width:82px}
+thead th.wk-th{width:52px;font-size:8px}
+thead th.now-th{background:#B83232}
+
+/* Rows */
+tbody tr{transition:background .1s}
+tbody tr:hover td{background:#F2F8F4!important}
+tbody tr.month-sep td{background:var(--sage-pale)!important;font-size:10px;font-weight:500;color:var(--sage);padding:6px 16px!important;border-bottom:1px solid var(--sage-light)!important;letter-spacing:.05em;text-transform:uppercase;font-family:var(--font-display);font-style:italic}
+td{padding:3px;border-bottom:1px solid #F0F4F1;border-right:1px solid #F5F7F5;vertical-align:middle}
+.task-cell{padding:5px 8px 5px 14px!important;position:sticky;left:0;background:#fff;z-index:2;min-width:180px;max-width:180px}
+tbody tr:hover .task-cell{background:#F2F8F4!important}
+.task-done .task-name{text-decoration:line-through;opacity:.45}
+.task-name{font-size:11px;line-height:1.4;color:var(--ink)}
+.task-name.wedding{font-weight:500;color:var(--blush);font-family:var(--font-display);font-style:italic;font-size:13px}
+.task-note{font-size:10px;color:var(--muted);margin-top:2px;font-style:italic}
+
+.cat-badge{font-size:8px;font-weight:500;padding:2px 5px;border-radius:8px;display:inline-block;white-space:nowrap;letter-spacing:.01em}
+.st-btn{font-size:9px;padding:3px 7px;border-radius:7px;border:none;font-family:var(--font-body);font-weight:500;cursor:pointer;transition:opacity .15s,transform .1s;display:inline-block;white-space:nowrap}
+.st-btn:hover{opacity:.8;transform:scale(.97)}
+.st-todo{background:#FDEAEA;color:#A32D2D}
+.st-prog{background:#FEF3E2;color:#8A5200}
+.st-done{background:#EBF5EE;color:#2D6A3F}
+
+/* ── Gantt bar cells ── */
+.bar-cell{padding:3px 1px!important;text-align:center;position:relative;width:52px}
+.bar-cell.now-col{background:#FFF5F5!important}
+
+/* ── Draggable bars ── */
+.bar-wrap{position:relative;height:22px;cursor:grab;user-select:none;width:100%}
+.bar-wrap:active{cursor:grabbing}
+.bar-inner{position:absolute;top:2px;left:1px;right:1px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;transition:opacity .2s,filter .15s}
+.bar-inner:hover{filter:brightness(1.12)}
+.bar-inner.done-bar{opacity:.35}
+.bar-handle-l,.bar-handle-r{position:absolute;top:0;bottom:0;width:12px;cursor:ew-resize;z-index:3;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.bar-wrap:hover .bar-handle-l,.bar-wrap:hover .bar-handle-r{opacity:1}
+.bar-handle-l{left:0;border-radius:4px 0 0 4px}
+.bar-handle-r{right:0;border-radius:0 4px 4px 0}
+.handle-grip{width:2px;height:8px;background:rgba(255,255,255,0.7);border-radius:1px}
+
+/* dragging state */
+.bar-dragging{opacity:.7;filter:brightness(1.15);box-shadow:0 2px 12px rgba(0,0,0,0.18)}
+.col-drop-target{background:rgba(74,124,89,0.12)!important}
+
+/* ── Tooltip ── */
+.tooltip{position:fixed;background:var(--ink);color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;pointer-events:none;z-index:9999;white-space:nowrap;opacity:0;transition:opacity .15s}
+.tooltip.show{opacity:1}
+
+/* ── Legend ── */
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:.85rem 1.75rem;border-top:1px solid var(--border);background:#fff}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.legend-dot{width:9px;height:9px;border-radius:50%}
+
+/* ── Undo bar ── */
+.undo-bar{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:.6rem 1.25rem;border-radius:30px;font-size:12px;display:flex;align-items:center;gap:12px;z-index:1000;transition:transform .25s ease;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.undo-bar.show{transform:translateX(-50%) translateY(0)}
+.undo-btn{background:rgba(255,255,255,.18);border:none;color:#fff;font-family:var(--font-body);font-size:11px;padding:3px 10px;border-radius:12px;cursor:pointer;font-weight:500}
+.undo-btn:hover{background:rgba(255,255,255,.28)}
+
+/* ── Row action buttons (edit / copy / delete) ── */
+.row-actions{display:flex;gap:4px;align-items:center;opacity:0;transition:opacity .15s;margin-left:4px}
+tbody tr:hover .row-actions{opacity:1}
+.row-btn{width:22px;height:22px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:background .12s,transform .1s}
+.row-btn:hover{transform:scale(1.1)}
+.row-btn.edit{background:#EBF3F8;color:#185FA5}
+.row-btn.edit:hover{background:#B5D4F4}
+.row-btn.copy{background:#EBF5EE;color:#2D6A3F}
+.row-btn.copy:hover{background:#C0DD97}
+.row-btn.del{background:#FDEAEA;color:#A32D2D}
+.row-btn.del:hover{background:#F7C1C1}
+.row-btn.add{background:var(--sage-pale);color:var(--sage);width:auto;padding:0 8px;font-size:11px;font-family:var(--font-body);border-radius:8px;border:1px dashed var(--sage-light);height:24px}
+.row-btn.add:hover{background:var(--sage-pale);border-color:var(--sage)}
+.copied-flash{animation:flashCopy .5s ease}
+@keyframes flashCopy{0%{background:#EBF5EE}50%{background:#A8D5BA}100%{background:transparent}}
+
+/* ── Edit modal ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(28,36,32,0.45);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:var(--radius-lg);width:min(520px,92vw);max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(28,36,32,0.22);transform:translateY(12px);transition:transform .2s}
+.modal-backdrop.open .modal{transform:translateY(0)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem 1rem;border-bottom:1px solid var(--border)}
+.modal-header h2{font-family:var(--font-display);font-size:17px;font-weight:500;font-style:italic;color:var(--sage-dark)}
+.modal-close{width:28px;height:28px;border-radius:8px;border:none;background:#f5f5f5;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);transition:background .12s}
+.modal-close:hover{background:#eee}
+.modal-body{padding:1.25rem 1.5rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:13px;color:var(--ink);background:#FAFAFA;outline:none;transition:border .15s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--sage-mid);background:#fff}
+.field textarea{resize:vertical;min-height:70px;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:1rem 1.5rem;border-top:1px solid var(--border);background:#FAFAFA;border-radius:0 0 var(--radius-lg) var(--radius-lg)}
+.btn-cancel{padding:7px 18px;border-radius:var(--radius);border:1px solid var(--border);background:#fff;color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer}
+.btn-cancel:hover{background:#f5f5f5}
+.btn-save{padding:7px 22px;border-radius:var(--radius);border:none;background:var(--sage-dark);color:#fff;font-family:var(--font-body);font-size:13px;cursor:pointer;font-weight:500;transition:background .15s}
+.btn-save:hover{background:var(--sage)}
+.btn-danger{padding:7px 16px;border-radius:var(--radius);border:none;background:#FDEAEA;color:#A32D2D;font-family:var(--font-body);font-size:13px;cursor:pointer;margin-right:auto}
+.btn-danger:hover{background:#F7C1C1}
+
+/* ── Owner badge ── */
+.owner-badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:8px;display:inline-block;white-space:nowrap;cursor:pointer;border:none;font-family:var(--font-body);transition:opacity .15s}
+.owner-badge:hover{opacity:.8}
+.owner-yiwen{background:#F2EFF8;color:#7A6B99}
+.owner-michael{background:#EBF3F8;color:#2D5F8A}
+.owner-other{background:#FEF3E2;color:#8A5200}
+.owner-unset{background:#F5F5F5;color:#AAAAAA;border:1px dashed #DDD}
+
+/* ── Owner modal overlay ── */
+.owner-picker{position:fixed;z-index:3000;background:#fff;border-radius:var(--radius-lg);box-shadow:0 8px 32px rgba(28,36,32,0.18);padding:1rem;width:220px;display:none}
+.owner-picker.open{display:block}
+.owner-picker-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem}
+.owner-option{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--radius);cursor:pointer;transition:background .12s;font-size:13px;border:none;background:none;width:100%;font-family:var(--font-body);color:var(--ink)}
+.owner-option:hover{background:var(--sage-pale)}
+.owner-sep{height:1px;background:var(--border);margin:.5rem 0}
+.owner-custom{margin-top:.25rem;display:flex;gap:6px}
+.owner-custom input{flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:var(--font-body);outline:none}
+.owner-custom input:focus{border-color:var(--sage-mid)}
+.owner-custom button{padding:5px 10px;border-radius:var(--radius);border:none;background:var(--sage-dark);color:#fff;font-size:12px;cursor:pointer;font-family:var(--font-body)}
+
+.clip-banner{position:fixed;bottom:1.5rem;right:1.75rem;background:var(--sage-dark);color:#fff;padding:.55rem 1rem;border-radius:24px;font-size:12px;display:flex;align-items:center;gap:10px;z-index:1001;transform:translateY(60px);opacity:0;transition:all .25s ease;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.clip-banner.show{transform:translateY(0);opacity:1}
+.clip-paste-btn{background:rgba(255,255,255,.18);border:none;color:#fff;font-family:var(--font-body);font-size:11px;padding:3px 10px;border-radius:12px;cursor:pointer;font-weight:500}
+.clip-paste-btn:hover{background:rgba(255,255,255,.28)}
+
+/* ── Add task row ── */
+.add-row td{padding:6px 16px!important;border-bottom:none}
+
+/* ── Archive / past weeks ── */
+.archive-btn{font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap;font-family:var(--font-body);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.archive-btn:hover{border-color:var(--gold);color:#7A5800}
+.archive-btn.open{background:var(--gold-pale);border-color:var(--gold);color:#7A5800;font-weight:500}
+th.past-th{background:#7A8A82!important;color:rgba(255,255,255,0.65)!important;font-size:8px!important}
+td.past-col{background:#F6F6F4!important}
+td.past-col .bar-inner{opacity:.28!important;filter:grayscale(50%)}
+.archive-divider th{background:linear-gradient(135deg,#C4963A,#E8C060)!important;color:#fff!important;font-size:9px!important;letter-spacing:.05em;text-align:left!important;padding-left:14px!important}
+
+@media(max-width:640px){
+  .stats-bar{grid-template-columns:repeat(3,1fr)}
+  .countdown{display:none}
+  .gantt-outer{padding:.75rem}
+  .toolbar{top:60px;padding:.75rem}
+  .field-row{grid-template-columns:1fr}
+}
+</style>
+
+<!-- Owner picker popup -->
+<div class="owner-picker" id="owner-picker">
+  <div class="owner-picker-title">Assign to</div>
+  <button class="owner-option" onclick="setOwner('Yiwen')"><span style="width:10px;height:10px;border-radius:50%;background:#7A6B99;display:inline-block"></span> Yiwen</button>
+  <button class="owner-option" onclick="setOwner('Michael')"><span style="width:10px;height:10px;border-radius:50%;background:#2D5F8A;display:inline-block"></span> Michael</button>
+  <button class="owner-option" onclick="setOwner('Both')"><span style="width:10px;height:10px;border-radius:50%;background:#4A8A6A;display:inline-block"></span> Both</button>
+  <div class="owner-sep"></div>
+  <div class="owner-custom">
+    <input type="text" id="owner-custom-input" placeholder="Other name…" onkeydown="if(event.key==='Enter')confirmCustomOwner()">
+    <button onclick="confirmCustomOwner()">Set</button>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop" id="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Edit task</h2>
+      <button class="modal-close" onclick="closeModalDirect()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Task name</label>
+        <input type="text" id="m-task" placeholder="Task name">
+      </div>
+      <div class="field">
+        <label>Note / details</label>
+        <textarea id="m-note" placeholder="Optional notes…"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Category</label>
+          <select id="m-cat"></select>
+        </div>
+        <div class="field">
+          <label>Assigned to</label>
+          <select id="m-owner">
+            <option value="">— Unassigned —</option>
+            <option value="Yiwen">Yiwen</option>
+            <option value="Michael">Michael</option>
+            <option value="Both">Both</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Status</label>
+          <select id="m-status">
+            <option value="todo">To do</option>
+            <option value="prog">In progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Custom assignee (if Other)</label>
+          <input type="text" id="m-owner-custom" placeholder="e.g. Mom, Coordinator…">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Start week</label>
+          <select id="m-start"></select>
+        </div>
+        <div class="field">
+          <label>End week</label>
+          <select id="m-end"></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="btn-delete" onclick="deleteTask()"><i class="ti ti-trash" style="font-size:13px;vertical-align:-1px"></i> Delete</button>
+      <button class="btn-cancel" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn-save" onclick="saveModal()">Save changes</button>
+    </div>
+  </div>
+</div>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1><span>Yiwen</span> &amp; <span>Michael</span></h1>
+    <div class="header-sub">September 26, 2026 &nbsp;·&nbsp; Bellport Inn, New York &nbsp;·&nbsp; ~60–65 guests</div>
+  </div>
+  <div class="countdown" id="cd"></div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-n" style="color:var(--sage-dark)" id="s-days">—</div><div class="stat-l">Days to go</div></div>
+  <div class="stat"><div class="stat-n" style="color:#A32D2D" id="s-todo">—</div><div class="stat-l">To do</div></div>
+  <div class="stat"><div class="stat-n" style="color:#8A5200" id="s-prog">—</div><div class="stat-l">In progress</div></div>
+  <div class="stat"><div class="stat-n" style="color:#2D6A3F" id="s-done">—</div><div class="stat-l">Done</div></div>
+  <div class="stat"><div class="stat-n" style="color:var(--sage)" id="s-pct">—</div><div class="stat-l">Complete</div></div>
+  <div class="progress-track"><div class="progress-fill" id="pfill" style="width:0%"></div></div>
+</div>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <i class="ti ti-search" aria-hidden="true"></i>
+    <input type="text" id="search" placeholder="Search tasks…" oninput="render()">
+  </div>
+  <button class="pill active" onclick="setF('all',this)">All</button>
+  <button class="pill" onclick="setF('todo',this)">To do</button>
+  <select class="cat-sel" id="ownersel" onchange="render()" style="border-color:#B0A0CC">
+    <option value="">All owners</option>
+    <option value="Yiwen">Yiwen</option>
+    <option value="Michael">Michael</option>
+    <option value="Both">Both</option>
+  </select>
+  <button class="pill" onclick="setF('prog',this)">In progress</button>
+  <button class="pill" onclick="setF('done',this)">Done</button>
+  <button class="pill urgent" onclick="setF('urgent',this)">Urgent</button>
+  <select class="cat-sel" id="catsel" onchange="render()"><option value="">All categories</option></select>
+  <button class="archive-btn" id="archive-btn" onclick="toggleArchive(this)"><i class="ti ti-archive" style="font-size:13px"></i> Show past weeks</button>
+  <div class="drag-tip"><i class="ti ti-arrows-left-right" aria-hidden="true"></i> Drag bars · <i class="ti ti-pencil" style="font-size:12px"></i> Edit · <i class="ti ti-copy" style="font-size:12px"></i> Copy · <kbd style="font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid #ccc;background:#f5f5f5;color:#555;font-style:normal">⌘Z</kbd> Undo</div>
+</div>
+
+<!-- Clipboard paste banner -->
+<div class="clip-banner" id="clip-banner">
+  <i class="ti ti-clipboard" style="font-size:14px"></i>
+  <span id="clip-msg">Row copied</span>
+  <button class="clip-paste-btn" onclick="pasteTask()">Paste as new task</button>
+</div>
+
+<div class="gantt-outer">
+  <div class="gantt-wrap">
+    <div class="gantt-scroll" id="gantt-scroll">
+      <table>
+        <thead id="ghead"></thead>
+        <tbody id="gbody"></tbody>
+      </table>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+
+<div class="undo-bar" id="undo-bar">
+  <i class="ti ti-rotate-left" style="font-size:14px"></i>
+  <span id="undo-msg">Undone</span>
+  <button class="undo-btn" onclick="undoGlobal()">Undo</button>
+  <button class="undo-btn" id="redo-btn" onclick="redoGlobal()" style="display:none">Redo</button>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const TODAY=new Date(); // real current date
+const WEDDING=new Date(2026,8,26);
+
+const CAT_COLORS={
+  "Vendors":"#8B6F6F","Venue":"#5A8FA8","Attire":"#7A6B99","Guests":"#4A8A6A",
+  "Beauty":"#B07840","Music":"#9A8030","Decor":"#5A8A6A","Ceremony":"#8A5A78",
+  "Logistics":"#5A7A8A","Admin":"#7A7A60","Honeymoon":"#3A8A8A","Events":"#9A7040",
+  "Personal":"#8A5A5A","Wedding Day":"#C97070"
+};
+const CAT_BG={
+  "Vendors":"#F5EEEE","Venue":"#EBF3F8","Attire":"#F2EFF8","Guests":"#EBF5EE",
+  "Beauty":"#FAF0E6","Music":"#F8F5E6","Decor":"#EBF5EE","Ceremony":"#F5EBF2",
+  "Logistics":"#EBF2F5","Admin":"#F5F5EC","Honeymoon":"#EBF5F5","Events":"#FAF0E6",
+  "Personal":"#F8EDED","Wedding Day":"#FDEAEA"
+};
+
+function pd(y,m,d){return new Date(y,m-1,d)}
+function addDays(d,n){return new Date(d.getTime()+n*86400000)}
+function getMonday(d){const day=d.getDay();const diff=d.getDate()-(day===0?6:day-1);return new Date(d.getFullYear(),d.getMonth(),diff)}
+function fmtDate(d){const m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];return m[d.getMonth()]+" "+d.getDate()}
+
+const startDate=new Date(2026,4,11);
+const endDate=new Date(2026,9,3);
+const weeks=[];
+let wd=new Date(startDate);
+while(wd<=endDate){weeks.push(new Date(wd));wd=addDays(wd,7)}
+const todayMonday=getMonday(TODAY);
+const todayWkIdx=weeks.findIndex(w=>Math.abs(w-todayMonday)<3*86400000);
+
+const TASKS=[
+  {task:"Call florist — discuss bridal bouquet",cat:"Vendors",note:"Found her — connect this week",status:"prog",owner:"Yiwen",s:pd(2026,5,11),e:pd(2026,5,22)},
+  {task:"Confirm + contract bartender",cat:"Vendors",note:"You have someone in mind — lock her in now!",status:"todo",owner:"Yiwen",s:pd(2026,5,11),e:pd(2026,5,22)},
+  {task:"Book luxury portable bathroom rental",cat:"Venue",note:"Bellport Inn plumbing can't handle 60+ guests",status:"todo",owner:"Michael",s:pd(2026,5,11),e:pd(2026,5,22)},
+  {task:"Find + book videographer",cat:"Vendors",note:"Fall dates book up fast",status:"todo",owner:"Both",s:pd(2026,5,11),e:pd(2026,6,5)},
+  {task:"Confirm bridesmaids ordered dresses",cat:"Attire",note:"Color sent — set a hard deadline",status:"prog",owner:"Yiwen",s:pd(2026,5,11),e:pd(2026,6,22)},
+  {task:"Book rehearsal dinner restaurant",cat:"Events",note:"Bellport spots for ~20+ incl. China family",status:"todo",owner:"Both",s:pd(2026,5,18),e:pd(2026,6,12)},
+  {task:"Research projector rental for dad's video",cat:"Logistics",note:"Test outdoor AV — daylight visibility",status:"todo",owner:"Michael",s:pd(2026,5,18),e:pd(2026,6,5)},
+  {task:"Confirm cousin DJ setup (speakers etc.)",cat:"Music",note:"Outdoor sound testing needed",status:"todo",owner:"Michael",s:pd(2026,5,18),e:pd(2026,8,1)},
+  {task:"Finalize China family rental car (9 ppl)",cat:"Guests",note:"Book minivan/SUV before summer rates peak",status:"todo",owner:"Yiwen",s:pd(2026,5,25),e:pd(2026,6,12)},
+  {task:"Start runner's tan treatment",cat:"Beauty",note:"Gradual self-tanner to blend tan lines for makeup day",status:"todo",owner:"Yiwen",s:pd(2026,5,25),e:pd(2026,9,15)},
+  {task:"Build ceremony music playlist",cat:"Music",note:"Processional, dinner, first dance, parent dances",status:"todo",owner:"Both",s:pd(2026,6,1),e:pd(2026,8,1)},
+  {task:"Confirm EU guests' final headcount",cat:"Guests",note:"Needed for seating + catering",status:"todo",owner:"Michael",s:pd(2026,6,1),e:pd(2026,8,31)},
+  {task:"Decoration trial (arch + waterfall flowers)",cat:"Decor",note:"Test setup, photograph layout for reference",status:"todo",owner:"Yiwen",s:pd(2026,6,8),e:pd(2026,7,31)},
+  {task:"Work with Father Bill on ceremony details",cat:"Ceremony",note:"Readings, music, vow exchange, walking order",status:"todo",owner:"Both",s:pd(2026,6,8),e:pd(2026,8,15)},
+  {task:"Buy men's ties + own wedding shoes",cat:"Attire",note:"Groom + groomsmen ties; your shoes",status:"todo",owner:"Both",s:pd(2026,6,15),e:pd(2026,7,12)},
+  {task:"Flower girl + ring bearer attire",cat:"Attire",note:"Outfits + rehearsal prep for the kids",status:"todo",owner:"Both",s:pd(2026,6,15),e:pd(2026,8,1)},
+  {task:"Hard check-in: maids have their dresses",cat:"Attire",note:"Don't leave this until August",status:"todo",owner:"Yiwen",s:pd(2026,6,22),e:pd(2026,6,26)},
+  {task:"Book Asheville honeymoon hotel",cat:"Honeymoon",note:"Target: confirmed before Aug 22",status:"todo",owner:"Both",s:pd(2026,6,29),e:pd(2026,8,22)},
+  {task:"Bachelor party",cat:"Events",note:"Mid-July — all booked, enjoy!",status:"prog",owner:"Michael",s:pd(2026,7,6),e:pd(2026,7,17)},
+  {task:"Decor trial at Bellport Inn backyard",cat:"Decor",note:"Arch door, waterfall, table dry arrangements",status:"todo",owner:"Yiwen",s:pd(2026,7,6),e:pd(2026,7,31)},
+  {task:"Online MUA call — styles + tan brief",cat:"Beauty",note:"Discuss runner's tan, each person's look",status:"todo",owner:"Yiwen",s:pd(2026,7,13),e:pd(2026,7,24)},
+  {task:"Finalize Asheville transport + activities",cat:"Honeymoon",note:"Before Aug 22 deadline",status:"todo",owner:"Michael",s:pd(2026,7,13),e:pd(2026,8,22)},
+  {task:"Confirm liquor quantities with bartender",cat:"Vendors",note:"Calculate for 60–65 guests",status:"todo",owner:"Michael",s:pd(2026,7,20),e:pd(2026,8,14)},
+  {task:"Design bilingual menus + name cards",cat:"Decor",note:"Chinese + English — allow print lead time",status:"todo",owner:"Yiwen",s:pd(2026,7,20),e:pd(2026,8,17)},
+  {task:"Draft ceremony program (bilingual)",cat:"Ceremony",note:"Include Father Bill's sections",status:"todo",owner:"Yiwen",s:pd(2026,7,27),e:pd(2026,8,14)},
+  {task:"Finalize all Asheville bookings by 8/22",cat:"Honeymoon",note:"Hard deadline — hotel + transport",status:"todo",owner:"Both",s:pd(2026,8,3),e:pd(2026,8,22)},
+  {task:"Finalize vendor meal counts",cat:"Vendors",note:"Bartender, 5 MUA artists, photographers, coordinator",status:"todo",owner:"Yiwen",s:pd(2026,8,3),e:pd(2026,9,4)},
+  {task:"Husband's church documents ready",cat:"Admin",note:"Confirm exact docs needed with Father Bill",status:"todo",owner:"Michael",s:pd(2026,8,10),e:pd(2026,9,11)},
+  {task:"Schedule first dress fitting + alteration",cat:"Attire",note:"Even bought dresses benefit from alterations",status:"todo",owner:"Yiwen",s:pd(2026,8,10),e:pd(2026,8,28)},
+  {task:"Send menus + name cards to print",cat:"Decor",note:"Allow 2–3 weeks in case of reprints",status:"todo",owner:"Yiwen",s:pd(2026,8,17),e:pd(2026,8,28)},
+  {task:"Confirm speech givers",cat:"Ceremony",note:"Cue dad's video moment in the timeline",status:"todo",owner:"Both",s:pd(2026,8,17),e:pd(2026,8,28)},
+  {task:"Brief MUA team in writing",cat:"Beauty",note:"Inspo photos, runner's tan notes, each look",status:"todo",owner:"Yiwen",s:pd(2026,8,17),e:pd(2026,8,28)},
+  {task:"Send day-of timeline draft to JME Planner",cat:"Logistics",note:"Cottage → church → marina → cocktails → dinner",status:"todo",owner:"Both",s:pd(2026,8,24),e:pd(2026,9,4)},
+  {task:"Place liquor order",cat:"Vendors",note:"Coordinate delivery with venue + bartender",status:"todo",owner:"Michael",s:pd(2026,8,24),e:pd(2026,9,11)},
+  {task:"Contact MIA guests + confirm EU count",cat:"Guests",note:"Needed for final catering number",status:"todo",owner:"Michael",s:pd(2026,8,31),e:pd(2026,9,11)},
+  {task:"Give final guest count to caterer + venue",cat:"Vendors",note:"60–65 guests confirmed",status:"todo",owner:"Yiwen",s:pd(2026,8,31),e:pd(2026,9,11)},
+  {task:"Give photographer must-have shot list",cat:"Vendors",note:"Cultural moments, dog w/ Insta360, family groups",status:"todo",owner:"Yiwen",s:pd(2026,9,7),e:pd(2026,9,14)},
+  {task:"Finalize seating chart + escort cards",cat:"Logistics",note:"Share copy with JME Planner",status:"todo",owner:"Yiwen",s:pd(2026,9,7),e:pd(2026,9,14)},
+  {task:"Finalize floor plan + send to venue",cat:"Logistics",note:"Include projector, bar area, dog-friendly zone",status:"todo",owner:"Both",s:pd(2026,9,7),e:pd(2026,9,14)},
+  {task:"Finalize music playlist → send to cousin",cat:"Music",note:"All ceremony + reception songs confirmed",status:"todo",owner:"Michael",s:pd(2026,9,7),e:pd(2026,9,14)},
+  {task:"Schedule decor drop-off with venue",cat:"Venue",note:"Arch, waterfall, dry flowers, mugs + candy favors",status:"todo",owner:"Yiwen",s:pd(2026,9,7),e:pd(2026,9,14)},
+  {task:"Final dress fitting + alterations",cat:"Attire",note:"Start breaking in your wedding shoes now!",status:"todo",owner:"Yiwen",s:pd(2026,9,14),e:pd(2026,9,18)},
+  {task:"Confirm all vendor arrival times",cat:"Vendors",note:"Photographers, MUA team, bartender, rentals",status:"todo",owner:"Both",s:pd(2026,9,14),e:pd(2026,9,18)},
+  {task:"Send timeline to bridal party + family",cat:"Logistics",note:"Include EU + China family day logistics",status:"todo",owner:"Both",s:pd(2026,9,14),e:pd(2026,9,18)},
+  {task:"Create welcome bags (China + EU guests)",cat:"Guests",note:"Small gesture for international guests",status:"todo",owner:"Yiwen",s:pd(2026,9,14),e:pd(2026,9,18)},
+  {task:"Final venue walkthrough with JME Planner",cat:"Venue",note:"Layout, decor, vendor logistics",status:"todo",owner:"Both",s:pd(2026,9,14),e:pd(2026,9,18)},
+  {task:"Targeted self-tanner for tan lines",cat:"Beauty",note:"7–10 days out — blend runner's tan lines",status:"todo",owner:"Yiwen",s:pd(2026,9,14),e:pd(2026,9,24)},
+  {task:"Bridal party group text + planner info",cat:"Logistics",note:"Wedding day questions go to JME Planner",status:"todo",owner:"Yiwen",s:pd(2026,9,19),e:pd(2026,9,24)},
+  {task:"Confirm ceremony rehearsal details",cat:"Ceremony",note:"Date, time, location, walking order",status:"todo",owner:"Both",s:pd(2026,9,19),e:pd(2026,9,24)},
+  {task:"Email all vendors — final timeline",cat:"Vendors",note:"Everyone gets the same document",status:"todo",owner:"Both",s:pd(2026,9,19),e:pd(2026,9,24)},
+  {task:"Have dresses steamed",cat:"Attire",note:"Dress + all bridesmaid dresses",status:"todo",owner:"Yiwen",s:pd(2026,9,19),e:pd(2026,9,24)},
+  {task:"Manicure + pedicure",cat:"Beauty",note:"2–3 days before the wedding",status:"todo",owner:"Yiwen",s:pd(2026,9,23),e:pd(2026,9,25)},
+  {task:"Pick up all formalwear",cat:"Attire",note:"Confirm wedding party has theirs too",status:"todo",owner:"Michael",s:pd(2026,9,23),e:pd(2026,9,25)},
+  {task:"Drop off welcome gifts to guests",cat:"Guests",note:"China family Airbnb + EU guests",status:"todo",owner:"Both",s:pd(2026,9,23),e:pd(2026,9,25)},
+  {task:"Prepare vendor gratuity envelopes",cat:"Admin",note:"Seal + sign on the seal line",status:"todo",owner:"Both",s:pd(2026,9,23),e:pd(2026,9,25)},
+  {task:"Order wedding morning breakfast/lunch",cat:"Logistics",note:"For getting-ready crew at Bellport cottage",status:"todo",owner:"Yiwen",s:pd(2026,9,23),e:pd(2026,9,25)},
+  {task:"Pack for Asheville honeymoon",cat:"Honeymoon",note:"",status:"todo",owner:"Both",s:pd(2026,9,23),e:pd(2026,9,25)},
+  {task:"Ceremony rehearsal + rehearsal dinner",cat:"Events",note:"Church rehearsal separate from dinner",status:"todo",owner:"Both",s:pd(2026,9,25),e:pd(2026,9,25)},
+  {task:"Pack wedding detail box for photographer",cat:"Logistics",note:"Rings, vow books, veil, jewelry, dog's Insta360!",status:"todo",owner:"Yiwen",s:pd(2026,9,25),e:pd(2026,9,25)},
+  {task:"WEDDING DAY — September 26!",cat:"Wedding Day",note:"Eat breakfast, stay hydrated, enjoy every minute",status:"todo",owner:"Both",s:pd(2026,9,26),e:pd(2026,9,26)},
+  {task:"Send thank you cards to guests",cat:"Admin",note:"",status:"todo",owner:"Both",s:pd(2026,9,28),e:pd(2026,10,3)},
+  {task:"Return formalwear + rentals",cat:"Admin",note:"",status:"todo",owner:"Michael",s:pd(2026,9,28),e:pd(2026,10,3)},
+  {task:"Preserve dress + bouquet",cat:"Personal",note:"",status:"todo",owner:"Yiwen",s:pd(2026,9,28),e:pd(2026,10,3)},
+  {task:"Enjoy the Asheville honeymoon!",cat:"Honeymoon",note:"You did it!",status:"todo",owner:"Both",s:pd(2026,9,28),e:pd(2026,10,3)},
+];
+
+// ── Owner picker (inline quick-assign) ──
+let ownerPickerIdx=-1;
+let ownerPickerTimer=null;
+
+function ownerClass(owner){
+  if(!owner) return "owner-unset";
+  if(owner==="Yiwen") return "owner-yiwen";
+  if(owner==="Michael") return "owner-michael";
+  if(owner==="Both") return "owner-both";
+  return "owner-other";
+}
+function ownerLabel(owner){return owner||"Assign"}
+
+function openOwnerPicker(idx,el){
+  ownerPickerIdx=idx;
+  const picker=document.getElementById("owner-picker");
+  document.getElementById("owner-custom-input").value="";
+  const rect=el.getBoundingClientRect();
+  picker.style.top=(rect.bottom+6+window.scrollY)+"px";
+  picker.style.left=Math.min(rect.left,window.innerWidth-240)+"px";
+  picker.classList.add("open");
+  clearTimeout(ownerPickerTimer);
+  // close on outside click
+  setTimeout(()=>document.addEventListener("click",closeOwnerPickerOutside,{once:true}),10);
+}
+
+function closeOwnerPickerOutside(e){
+  const picker=document.getElementById("owner-picker");
+  if(!picker.contains(e.target)) picker.classList.remove("open");
+}
+
+function setOwner(name){
+  if(ownerPickerIdx<0) return;
+  pushHistory(`assign owner — ${TASKS[ownerPickerIdx].task.substring(0,25)}`);
+  TASKS[ownerPickerIdx].owner=name;
+  saveState();render();
+  document.getElementById("owner-picker").classList.remove("open");
+}
+
+function confirmCustomOwner(){
+  const val=document.getElementById("owner-custom-input").value.trim();
+  if(val) setOwner(val);
+}
+
+// also add "Both" style
+const styleTag=document.createElement("style");
+styleTag.textContent=`.owner-both{background:#EBF5EE;color:#2D6A3F}`;
+document.head.appendChild(styleTag);
+
+// ── Modal ──
+let editingIdx = -1;
+
+function buildModalSelects(){
+  const catSel=document.getElementById("m-cat");
+  Object.keys(CAT_COLORS).forEach(c=>{
+    const o=document.createElement("option");
+    o.value=c;o.textContent=c;catSel.appendChild(o);
+  });
+  const sSel=document.getElementById("m-start");
+  const eSel=document.getElementById("m-end");
+  weeks.forEach((w,i)=>{
+    const label=fmtDate(w);
+    const os=document.createElement("option");os.value=i;os.textContent=label;sSel.appendChild(os);
+    const oe=document.createElement("option");oe.value=i;oe.textContent=label;eSel.appendChild(oe);
+  });
+}
+
+function openEdit(idx){
+  editingIdx=idx;
+  const t=TASKS[idx];
+  document.getElementById("modal-title").textContent=idx===-1?"Add new task":"Edit task";
+  document.getElementById("m-task").value=t.task;
+  document.getElementById("m-note").value=t.note||"";
+  document.getElementById("m-cat").value=t.cat;
+  document.getElementById("m-status").value=t.status;
+  document.getElementById("m-start").value=getWkIdx(t.s);
+  document.getElementById("m-end").value=getWkIdx(t.e);
+  // owner
+  const knownOwners=["","Yiwen","Michael","Both"];
+  const ownerSel=document.getElementById("m-owner");
+  const ownerCustom=document.getElementById("m-owner-custom");
+  if(knownOwners.includes(t.owner||"")){
+    ownerSel.value=t.owner||"";
+    ownerCustom.value="";
+  } else {
+    ownerSel.value="";
+    ownerCustom.value=t.owner||"";
+  }
+  document.getElementById("btn-delete").style.display=idx>=0?"":"none";
+  document.getElementById("modal-backdrop").classList.add("open");
+  setTimeout(()=>document.getElementById("m-task").focus(),100);
+}
+
+function openAddModal(prefill){
+  const newTask={
+    task:prefill?prefill.task+" (copy)":("New task"),
+    cat:prefill?prefill.cat:"Logistics",
+    note:prefill?prefill.note:"",
+    status:"todo",
+    s:prefill?new Date(prefill.s):new Date(weeks[todayWkIdx]||weeks[0]),
+    e:prefill?new Date(prefill.e):new Date(weeks[Math.min(todayWkIdx+1,weeks.length-1)]||weeks[0])
+  };
+  TASKS.push(newTask);
+  editingIdx=TASKS.length-1;
+  document.getElementById("modal-title").textContent=prefill?"Paste as new task":"Add new task";
+  document.getElementById("m-task").value=newTask.task;
+  document.getElementById("m-note").value=newTask.note;
+  document.getElementById("m-cat").value=newTask.cat;
+  document.getElementById("m-status").value=newTask.status;
+  document.getElementById("m-start").value=getWkIdx(newTask.s);
+  document.getElementById("m-end").value=getWkIdx(newTask.e);
+  document.getElementById("btn-delete").style.display="";
+  document.getElementById("modal-backdrop").classList.add("open");
+  setTimeout(()=>document.getElementById("m-task").focus(),100);
+}
+
+function closeModal(e){if(e.target===document.getElementById("modal-backdrop"))closeModalDirect()}
+function closeModalDirect(){
+  document.getElementById("modal-backdrop").classList.remove("open");
+  editingIdx=-1;
+}
+
+function saveModal(){
+  if(editingIdx<0||editingIdx>=TASKS.length) return;
+  const t=TASKS[editingIdx];
+  const taskVal=document.getElementById("m-task").value.trim();
+  if(!taskVal) return;
+  pushHistory(`edit — ${t.task.substring(0,25)}`);
+  const si=parseInt(document.getElementById("m-start").value);
+  const ei=parseInt(document.getElementById("m-end").value);
+  t.task=taskVal;
+  t.note=document.getElementById("m-note").value.trim();
+  t.cat=document.getElementById("m-cat").value;
+  t.status=document.getElementById("m-status").value;
+  t.s=new Date(weeks[si]);
+  t.e=new Date(weeks[Math.max(si,ei)]);
+  // owner: custom overrides dropdown if filled
+  const customOwner=document.getElementById("m-owner-custom").value.trim();
+  t.owner=customOwner||document.getElementById("m-owner").value||"";
+  saveState();render();
+  closeModalDirect();
+}
+
+function deleteTask(){
+  if(editingIdx<0) return;
+  if(!confirm("Delete this task?")) return;
+  pushHistory(`delete — ${TASKS[editingIdx].task.substring(0,25)}`);
+  TASKS.splice(editingIdx,1);
+  saveState();render();
+  closeModalDirect();
+}
+
+// ── Clipboard ──
+let clipboard=null;
+let clipTimer=null;
+
+function copyRow(idx){
+  const t=TASKS[idx];
+  clipboard={task:t.task,cat:t.cat,note:t.note,status:"todo",s:new Date(t.s),e:new Date(t.e)};
+  const banner=document.getElementById("clip-banner");
+  document.getElementById("clip-msg").textContent=`"${t.task.substring(0,28)}…" copied`;
+  banner.classList.add("show");
+  clearTimeout(clipTimer);
+  clipTimer=setTimeout(()=>banner.classList.remove("show"),5000);
+  // flash the row
+  const rows=[...document.querySelectorAll("tbody tr")];
+  const row=rows.find(r=>r.querySelector(`.st-btn[onclick="cycleStatus(${idx})"]`));
+  if(row){row.classList.add("copied-flash");setTimeout(()=>row.classList.remove("copied-flash"),500)}
+}
+
+function pasteTask(){
+  if(!clipboard) return;
+  document.getElementById("clip-banner").classList.remove("show");
+  openAddModal(clipboard);
+}
+
+// Keyboard shortcuts
+document.addEventListener("keydown",e=>{
+  const inInput = e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT";
+  // Escape: close modal
+  if(e.key==="Escape") closeModalDirect();
+  // Ctrl/Cmd+Enter: save modal
+  if((e.metaKey||e.ctrlKey)&&e.key==="Enter"&&document.getElementById("modal-backdrop").classList.contains("open")){
+    e.preventDefault();saveModal();
+  }
+  // Ctrl/Cmd+Z: undo (unless typing in a field)
+  if((e.metaKey||e.ctrlKey)&&e.key==="z"&&!e.shiftKey&&!inInput){
+    e.preventDefault();
+    undoGlobal();
+  }
+  // Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y: redo
+  if((e.metaKey||e.ctrlKey)&&(e.key==="y"||(e.key==="z"&&e.shiftKey))&&!inInput){
+    e.preventDefault();
+    redoGlobal();
+  }
+});
+
+// ── Persistence ──
+function loadState(){
+  try{
+    const saved=JSON.parse(localStorage.getItem("yw_v4")||"{}");
+    TASKS.forEach((t,i)=>{
+      if(saved[i]){
+        if(saved[i].status) t.status=saved[i].status;
+        if(saved[i].s) t.s=new Date(saved[i].s);
+        if(saved[i].e) t.e=new Date(saved[i].e);
+        if(saved[i].owner!==undefined) t.owner=saved[i].owner;
+        if(saved[i].task) t.task=saved[i].task;
+        if(saved[i].note!==undefined) t.note=saved[i].note;
+        if(saved[i].cat) t.cat=saved[i].cat;
+      }
+    });
+    // load any added tasks
+    if(saved._extra){
+      saved._extra.forEach(t=>{
+        TASKS.push({...t,s:new Date(t.s),e:new Date(t.e)});
+      });
+    }
+  }catch(e){}
+}
+function saveState(){
+  try{
+    const obj={};
+    TASKS.forEach((t,i)=>{obj[i]={status:t.status,s:t.s.toISOString(),e:t.e.toISOString(),owner:t.owner||"",task:t.task,note:t.note,cat:t.cat}});
+    localStorage.setItem("yw_v4",JSON.stringify(obj));
+  }catch(e){}
+}
+loadState();
+
+// ── Undo ──
+// ── Global undo history ──
+const MAX_HISTORY = 50;
+let history = [];       // stack of full TASKS snapshots
+let historyPtr = -1;    // points to current position in history
+let undoBarTimer = null;
+
+function snapshotTasks(){
+  return TASKS.map(t=>({...t, s:new Date(t.s), e:new Date(t.e)}));
+}
+
+function pushHistory(label){
+  // Discard any redo states ahead of current pointer
+  if(historyPtr < history.length - 1){
+    history = history.slice(0, historyPtr + 1);
+  }
+  history.push({label, snap: snapshotTasks()});
+  if(history.length > MAX_HISTORY) history.shift();
+  historyPtr = history.length - 1;
+}
+
+function restoreSnapshot(snap){
+  // Clear and repopulate TASKS in place (keep same array ref)
+  TASKS.length = 0;
+  snap.forEach(t => TASKS.push({...t, s:new Date(t.s), e:new Date(t.e)}));
+}
+
+function undoGlobal(){
+  if(historyPtr <= 0){
+    showUndoToast("Nothing to undo", false);
+    return;
+  }
+  historyPtr--;
+  restoreSnapshot(history[historyPtr].snap);
+  saveState();
+  render();
+  const nextLabel = history[historyPtr + 1]?.label || "last action";
+  showUndoToast(`Undid: ${nextLabel}`, true);
+}
+
+function redoGlobal(){
+  if(historyPtr >= history.length - 1){
+    showUndoToast("Nothing to redo", false);
+    return;
+  }
+  historyPtr++;
+  restoreSnapshot(history[historyPtr].snap);
+  saveState();
+  render();
+  showUndoToast(`Redid: ${history[historyPtr].label}`, true);
+}
+
+function showUndoToast(msg, withRedo){
+  const bar = document.getElementById("undo-bar");
+  document.getElementById("undo-msg").textContent = msg;
+  const redoBtn = document.getElementById("redo-btn");
+  if(redoBtn) redoBtn.style.display = (withRedo && historyPtr < history.length - 1) ? "" : "none";
+  bar.classList.add("show");
+  clearTimeout(undoBarTimer);
+  undoBarTimer = setTimeout(()=> bar.classList.remove("show"), 3500);
+}
+
+// Take initial snapshot before any edits
+pushHistory("initial state");
+
+
+
+// ── Helpers ──
+let filterMode="all";
+function setF(f,btn){
+  filterMode=f;
+  document.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  render();
+}
+
+function getWkIdx(date){
+  for(let i=0;i<weeks.length;i++){
+    if(date>=weeks[i]&&date<addDays(weeks[i],7)) return i;
+  }
+  return date>=addDays(weeks[weeks.length-1],7)?weeks.length-1:0;
+}
+
+function cycleStatus(idx){
+  pushHistory(`status change — ${TASKS[idx].task.substring(0,25)}`);
+  const t=TASKS[idx];
+  if(t.status==="todo") t.status="prog";
+  else if(t.status==="prog") t.status="done";
+  else t.status="todo";
+  saveState(); render();
+}
+
+// ── Drag state ──
+let drag={active:false,mode:null,taskIdx:-1,startX:0,startSi:0,startEi:0,durWks:0,cellWidth:34};
+
+function getDragCellWidth(){
+  const firstBarCell=document.querySelector("td.bar-cell");
+  return firstBarCell?firstBarCell.getBoundingClientRect().width:52;
+}
+
+function onBarMouseDown(e,taskIdx,mode){
+  e.preventDefault();
+  e.stopPropagation();
+  const t=TASKS[taskIdx];
+  drag={
+    active:true,mode,taskIdx,
+    startX:e.clientX,
+    startSi:getWkIdx(t.s),
+    startEi:getWkIdx(t.e),
+    durWks:getWkIdx(t.e)-getWkIdx(t.s),
+    cellWidth:getDragCellWidth(),
+    oldS:new Date(t.s),
+    oldE:new Date(t.e)
+  };
+  document.body.style.cursor=mode==="resize-l"||mode==="resize-r"?"ew-resize":"grabbing";
+  // highlight the bar row
+  const barEl=document.querySelector(`.bar-inner[data-idx="${taskIdx}"]`);
+  if(barEl) barEl.classList.add("bar-dragging");
+}
+
+document.addEventListener("mousemove",e=>{
+  if(!drag.active) return;
+  const dx=e.clientX-drag.startX;
+  const wkDelta=Math.round(dx/drag.cellWidth);
+  const t=TASKS[drag.taskIdx];
+
+  let newSi=drag.startSi;
+  let newEi=drag.startEi;
+
+  if(drag.mode==="move"){
+    newSi=Math.max(0,Math.min(weeks.length-1,drag.startSi+wkDelta));
+    newEi=Math.max(newSi,Math.min(weeks.length-1,newSi+drag.durWks));
+  } else if(drag.mode==="resize-l"){
+    newSi=Math.max(0,Math.min(drag.startEi,drag.startSi+wkDelta));
+    newEi=drag.startEi;
+  } else if(drag.mode==="resize-r"){
+    newEi=Math.max(drag.startSi,Math.min(weeks.length-1,drag.startEi+wkDelta));
+    newSi=drag.startSi;
+  }
+
+  t.s=new Date(weeks[newSi]);
+  t.e=new Date(weeks[newEi]);
+
+  // live-update just the affected row's bar cells
+  updateBarRow(drag.taskIdx);
+
+  // tooltip
+  const tip=document.getElementById("tooltip");
+  tip.textContent=fmtDate(t.s)+" → "+fmtDate(t.e);
+  tip.style.left=(e.clientX+12)+"px";
+  tip.style.top=(e.clientY-28)+"px";
+  tip.classList.add("show");
+});
+
+document.addEventListener("mouseup",()=>{
+  if(!drag.active) return;
+  drag.active=false;
+  document.body.style.cursor="";
+  document.getElementById("tooltip").classList.remove("show");
+  const barEl=document.querySelector(`.bar-inner[data-idx="${drag.taskIdx}"]`);
+  if(barEl) barEl.classList.remove("bar-dragging");
+  pushHistory(`move — ${TASKS[drag.taskIdx].task.substring(0,25)}`);
+  saveState();
+  render();
+});
+
+// Touch support
+document.addEventListener("touchstart",e=>{
+  const bar=e.target.closest(".bar-wrap");
+  if(!bar) return;
+  const idx=parseInt(bar.dataset.idx);
+  const isL=e.target.closest(".bar-handle-l");
+  const isR=e.target.closest(".bar-handle-r");
+  const mode=isL?"resize-l":isR?"resize-r":"move";
+  const touch=e.touches[0];
+  const synth={clientX:touch.clientX,preventDefault:()=>e.preventDefault(),stopPropagation:()=>e.stopPropagation()};
+  onBarMouseDown(synth,idx,mode);
+},{passive:false});
+document.addEventListener("touchmove",e=>{
+  if(!drag.active) return;
+  e.preventDefault();
+  const touch=e.touches[0];
+  document.dispatchEvent(new MouseEvent("mousemove",{clientX:touch.clientX,clientY:touch.clientY}));
+},{passive:false});
+document.addEventListener("touchend",()=>{
+  if(drag.active) document.dispatchEvent(new MouseEvent("mouseup"));
+});
+
+// ── Live bar update (no full re-render during drag) ──
+function updateBarRow(taskIdx){
+  const vw=visibleWeeks();
+  const t=TASKS[taskIdx];
+  const si=getWkIdx(t.s);
+  const ei=getWkIdx(t.e);
+  const barColor=t.cat==="Wedding Day"?"#C97070":(CAT_COLORS[t.cat]||"#888");
+  const isDone=t.status==="done";
+
+  vw.forEach(i=>{
+    const cell=document.querySelector(`td.bar-cell[data-task="${taskIdx}"][data-wk="${i}"]`);
+    if(!cell) return;
+    cell.innerHTML="";
+    if(i>=si&&i<=ei){
+      const wrap=document.createElement("div");
+      wrap.className="bar-wrap";
+      wrap.dataset.idx=taskIdx;
+      const inner=document.createElement("div");
+      inner.className="bar-inner"+(isDone?" done-bar":"");
+      inner.dataset.idx=taskIdx;
+      inner.style.background=barColor;
+      const lh=document.createElement("div");lh.className="bar-handle-l";
+      const lhg=document.createElement("div");lhg.className="handle-grip";lh.appendChild(lhg);
+      const rh=document.createElement("div");rh.className="bar-handle-r";
+      const rhg=document.createElement("div");rhg.className="handle-grip";rh.appendChild(rhg);
+      inner.appendChild(lh);inner.appendChild(rh);
+      wrap.appendChild(inner);
+      cell.appendChild(wrap);
+      wrap.addEventListener("mousedown",ev=>{
+        const isL=ev.target.closest(".bar-handle-l");
+        const isR=ev.target.closest(".bar-handle-r");
+        onBarMouseDown(ev,taskIdx,isL?"resize-l":isR?"resize-r":"move");
+      });
+    }
+  });
+}
+
+// ── Full render ──
+function render(){
+  const q=(document.getElementById("search").value||"").toLowerCase();
+  const catFilter=document.getElementById("catsel").value;
+  const ownerFilter=document.getElementById("ownersel").value;
+  const tbody=document.getElementById("gbody");
+  tbody.innerHTML="";
+
+  let todoC=0,progC=0,doneC=0;
+  TASKS.forEach(t=>{t.status==="todo"?todoC++:t.status==="prog"?progC++:doneC++});
+  const total=TASKS.length;
+  const pct=Math.round((doneC/total)*100);
+  document.getElementById("s-todo").textContent=todoC;
+  document.getElementById("s-prog").textContent=progC;
+  document.getElementById("s-done").textContent=doneC;
+  document.getElementById("s-pct").textContent=pct+"%";
+  document.getElementById("pfill").style.width=pct+"%";
+  const days=Math.max(0,Math.ceil((WEDDING-TODAY)/86400000));
+  document.getElementById("s-days").textContent=days;
+
+  const filtered=TASKS.filter(t=>{
+    if(q&&!t.task.toLowerCase().includes(q)&&!t.cat.toLowerCase().includes(q)&&!(t.note||"").toLowerCase().includes(q)) return false;
+    if(catFilter&&t.cat!==catFilter) return false;
+    if(ownerFilter&&(t.owner||"")!==ownerFilter) return false;
+    if(filterMode==="todo"&&t.status!=="todo") return false;
+    if(filterMode==="prog"&&t.status!=="prog") return false;
+    if(filterMode==="done"&&t.status!=="done") return false;
+    if(filterMode==="urgent"){
+      const si=getWkIdx(t.s);
+      const diff=si-todayWkIdx;
+      if(isPastWeek(si)||diff>3||t.status==="done") return false;
+    }
+    return true;
+  });
+
+  let lastMonth="";
+  filtered.forEach(t=>{
+    const origIdx=TASKS.indexOf(t);
+    const taskMonth=t.s.toLocaleString("default",{month:"long",year:"numeric"});
+    if(taskMonth!==lastMonth){
+      lastMonth=taskMonth;
+      const mrow=document.createElement("tr");
+      mrow.className="month-sep";
+      mrow.innerHTML=`<td colspan="${4+visibleWeeks().length}">${taskMonth}</td>`;
+      tbody.appendChild(mrow);
+    }
+
+    const tr=document.createElement("tr");
+    const si=getWkIdx(t.s);
+    const ei=getWkIdx(t.e);
+    const catColor=CAT_COLORS[t.cat]||"#888";
+    const catBg=CAT_BG[t.cat]||"#f5f5f5";
+    const stClass=t.status==="done"?"st-done":t.status==="prog"?"st-prog":"st-todo";
+    const stLabel=t.status==="done"?"Done":t.status==="prog"?"In progress":"To do";
+    const isDone=t.status==="done";
+    const barColor=t.cat==="Wedding Day"?"#C97070":(CAT_COLORS[t.cat]||"#888");
+    const isWedding=t.cat==="Wedding Day";
+
+    const ownerCls=ownerClass(t.owner);
+    const ownerLbl=ownerLabel(t.owner);
+
+    let cells=`
+      <td class="task-cell${isDone?" task-done":""}">
+        <div style="display:flex;align-items:flex-start;gap:4px">
+          <div style="flex:1;min-width:0">
+            <div class="task-name${isWedding?" wedding":""}">${t.task}</div>
+            ${t.note?`<div class="task-note">${t.note}</div>`:""}
+          </div>
+          <div class="row-actions">
+            <button class="row-btn edit" onclick="openEdit(${origIdx})" title="Edit task"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+            <button class="row-btn copy" onclick="copyRow(${origIdx})" title="Copy row"><i class="ti ti-copy" aria-hidden="true"></i></button>
+            <button class="row-btn del" onclick="deleteTaskDirect(${origIdx})" title="Delete task"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </td>
+      <td style="text-align:center;padding:4px">
+        <button class="owner-badge ${ownerCls}" onclick="openOwnerPicker(${origIdx},this)" title="Click to reassign">${ownerLbl}</button>
+      </td>
+      <td style="text-align:center;padding:4px">
+        <span class="cat-badge" style="background:${catBg};color:${catColor}">${t.cat}</span>
+      </td>
+      <td style="text-align:center;padding:4px">
+        <button class="st-btn ${stClass}" onclick="cycleStatus(${origIdx})">${stLabel}</button>
+      </td>`;
+
+    const vw=visibleWeeks();
+    const totalCols=4+vw.length;
+
+    vw.forEach((i)=>{
+      const w=weeks[i];
+      const isToday=i===todayWkIdx;
+      const isPast=isPastWeek(i);
+      const inBar=(i>=si&&i<=ei);
+      let cellCls="bar-cell";
+      if(isToday) cellCls+=" now-col";
+      if(isPast) cellCls+=" past-col";
+      cells+=`<td class="${cellCls}" data-task="${origIdx}" data-wk="${i}">`;
+      if(inBar){
+        cells+=`<div class="bar-wrap" data-idx="${origIdx}">
+          <div class="bar-inner${isDone?" done-bar":""}" style="background:${barColor}" data-idx="${origIdx}">
+            <div class="bar-handle-l"><div class="handle-grip"></div></div>
+            <div class="bar-handle-r"><div class="handle-grip"></div></div>
+          </div>
+        </div>`;
+      }
+      cells+=`</td>`;
+    });
+
+    tr.innerHTML=cells;
+    tbody.appendChild(tr);
+
+    // attach drag listeners
+    tr.querySelectorAll(".bar-wrap").forEach(wrap=>{
+      const idx=parseInt(wrap.dataset.idx);
+      wrap.addEventListener("mousedown",ev=>{
+        const isL=ev.target.closest(".bar-handle-l");
+        const isR=ev.target.closest(".bar-handle-r");
+        onBarMouseDown(ev,idx,isL?"resize-l":isR?"resize-r":"move");
+      });
+    });
+  });
+
+  const vwFinal=visibleWeeks();
+  const colCount=4+vwFinal.length;
+
+  if(filtered.length===0){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="${colCount}" style="text-align:center;padding:2.5rem;font-size:13px;color:var(--muted)">No tasks match your filter.</td>`;
+    tbody.appendChild(tr);
+  }
+
+  const addRow=document.createElement("tr");
+  addRow.className="add-row";
+  addRow.innerHTML=`<td colspan="${colCount}">
+    <button class="row-btn add" onclick="openAddModal(null)"><i class="ti ti-plus" style="font-size:12px;vertical-align:-1px"></i> Add new task</button>
+  </td>`;
+  tbody.appendChild(addRow);
+}
+
+let showArchive = false;
+
+function toggleArchive(btn){
+  showArchive = !showArchive;
+  btn.classList.toggle("open", showArchive);
+  btn.innerHTML = showArchive
+    ? '<i class="ti ti-archive" style="font-size:13px"></i> Hide past weeks'
+    : '<i class="ti ti-archive" style="font-size:13px"></i> Show past weeks';
+  buildHead();
+  render();
+}
+
+function isPastWeek(i){
+  // A week is "past" if its Sunday (end) has already passed
+  return addDays(weeks[i], 7) < TODAY;
+}
+
+function visibleWeeks(){
+  if(showArchive) return weeks.map((_,i)=>i);
+  return weeks.map((_,i)=>i).filter(i=>!isPastWeek(i));
+}
+
+function buildHead(){
+  const head=document.getElementById("ghead");
+  head.innerHTML="";
+  const vw=visibleWeeks();
+  const pastCount=weeks.filter((_,i)=>isPastWeek(i)).length;
+
+  // Archive divider row when showing past weeks
+  if(showArchive && pastCount > 0){
+    const arow=document.createElement("tr");
+    arow.className="archive-divider";
+    let acells=`<th colspan="4" style="text-align:left;padding-left:14px;font-size:9px;background:linear-gradient(135deg,#C4963A,#E8C060);color:#fff;letter-spacing:.05em">
+      <i class="ti ti-archive" style="font-size:11px;vertical-align:-1px;margin-right:4px"></i> ARCHIVED WEEKS (past)
+    </th>`;
+    vw.forEach(i=>{
+      acells+=`<th style="font-size:7px;background:${isPastWeek(i)?"#9A7A42":"#2D4A3E"};color:rgba(255,255,255,${isPastWeek(i)?".55":".9"})"></th>`;
+    });
+    arow.innerHTML=acells;
+    head.appendChild(arow);
+  }
+
+  const mrow=document.createElement("tr");
+  mrow.innerHTML=`<th class="task-th">Task</th><th class="own-th">Owner</th><th class="cat-th">Category</th><th class="st-th">Status</th>`+
+    vw.map(i=>{
+      const w=weeks[i];
+      const past=isPastWeek(i);
+      const isNow=i===todayWkIdx;
+      const cls=past?"past-th":isNow?"now-th":"wk-th";
+      return `<th class="${cls}">${(w.getMonth()+1)+"/"+w.getDate()}</th>`;
+    }).join("");
+  head.appendChild(mrow);
+}
+
+function buildCatSelect(){
+  const sel=document.getElementById("catsel");
+  [...new Set(TASKS.map(t=>t.cat))].forEach(c=>{
+    const o=document.createElement("option");
+    o.value=c;o.textContent=c;sel.appendChild(o);
+  });
+  // Add any custom owner names not already in the owner dropdown
+  const ownerSel=document.getElementById("ownersel");
+  const knownOwners=new Set(["","Yiwen","Michael","Both"]);
+  [...new Set(TASKS.map(t=>t.owner||""))].filter(o=>o&&!knownOwners.has(o)).forEach(o=>{
+    const opt=document.createElement("option");
+    opt.value=o;opt.textContent=o;ownerSel.appendChild(opt);
+  });
+}
+
+function buildLegend(){
+  const leg=document.getElementById("legend");
+  Object.entries(CAT_COLORS).forEach(([cat,color])=>{
+    const d=document.createElement("div");
+    d.className="legend-item";
+    d.innerHTML=`<div class="legend-dot" style="background:${color}"></div><span>${cat}</span>`;
+    leg.appendChild(d);
+  });
+}
+
+function buildCountdown(){
+  const ms=WEDDING-TODAY;
+  const d=Math.max(0,Math.floor(ms/86400000));
+  document.getElementById("cd").innerHTML=`
+    <div class="cd-unit"><div class="cd-num">${Math.floor(d/30.44)}</div><div class="cd-lab">months</div></div>
+    <div class="cd-unit"><div class="cd-num">${Math.floor(d/7)}</div><div class="cd-lab">weeks</div></div>
+    <div class="cd-unit"><div class="cd-num">${d}</div><div class="cd-lab">days</div></div>`;
+}
+
+buildCountdown();
+buildCatSelect();
+buildHead();
+buildLegend();
+buildModalSelects();
+render();
+
+function deleteTaskDirect(idx){
+  if(!confirm("Delete this task?")) return;
+  pushHistory(`delete — ${TASKS[idx].task.substring(0,25)}`);
+  TASKS.splice(idx,1);
+  saveState();render();
+}
+
+// Scroll to today on load
+setTimeout(()=>{
+  const nowCol=document.querySelector("th.now-th");
+  if(nowCol){const sc=document.getElementById("gantt-scroll");sc.scrollLeft=Math.max(0,nowCol.offsetLeft-300)}
+},100);
+</script>
+</body>
+</html>
